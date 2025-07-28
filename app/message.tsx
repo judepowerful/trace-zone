@@ -6,38 +6,26 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Alert,
+  RefreshControl,
+  View
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { RefreshControl } from 'react-native';
 
 import { fetchRequestById, respondToRequest, getPendingRequestsForUser } from '../utils/requestApi';
 import { markAllAsRead } from '../hooks/useUnreadCount';
 import IncomingRequestModal from '../components/modals/IncomingRequestModal';
+import { useUserStore } from '../stores/useUserStore';
 
 export default function MessagesScreen(){
-  const [requests, setRequests] = useState<any[]>([]); // ✅ 自己维护
+  const [requests, setRequests] = useState<any[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [activeRequest, setActiveRequest] = useState<any | null>(null);
   const [isResponding, setIsResponding] = useState(false);
   const [myNameInSpace, setMyNameInSpace] = useState('');
   const [showModal, setShowModal] = useState(false);
   const router = useRouter();
+  const { updateSpaceStatus } = useUserStore();
 
-  // 刷新
-  const onRefresh = async () => {
-    setRefreshing(true);
-    try {
-      const latest = await getPendingRequestsForUser();
-      setRequests(latest);
-      markAllAsRead(latest);
-    } catch (err) {
-      Alert.alert('刷新失败', '请检查网络');
-    } finally {
-      setRefreshing(false);
-    }
-  };
-
-  // 全部已读
   useEffect(() => {
     const load = async () => {
       try {
@@ -51,8 +39,19 @@ export default function MessagesScreen(){
     load();
   }, []);
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      const latest = await getPendingRequestsForUser();
+      setRequests(latest);
+      markAllAsRead(latest);
+    } catch (err) {
+      Alert.alert('刷新失败', '请检查网络');
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
-  //接受邀请
   const handleAccept = async () => {
     setIsResponding(true);
     try {
@@ -64,7 +63,11 @@ export default function MessagesScreen(){
       await respondToRequest(activeRequest._id, 'accepted', myNameInSpace);
       const newList = requests.filter(r => r._id !== activeRequest._id);
       setRequests(newList);
-      router.push('/space-home');
+      
+      // 更新空间状态，确保首页能正确显示
+      await updateSpaceStatus();
+      
+      router.replace('/space-home');
     } catch (e) {
       Alert.alert('❌ 接受失败', '请稍后再试');
     } finally {
@@ -75,7 +78,6 @@ export default function MessagesScreen(){
     }
   };
 
-  //拒绝邀请
   const handleReject = async () => {
     setIsResponding(true);
     try {
@@ -98,14 +100,27 @@ export default function MessagesScreen(){
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-        <Text style={styles.backText}>← 返回</Text>
+    <SafeAreaView style={styles.safe}>
+      <TouchableOpacity
+        onPress={() => {
+          if (router.canGoBack()) {
+            router.back();
+          } else {
+            router.replace('/');
+          }
+        }}
+        style={styles.backIcon}
+        hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
+      >
+        <Text style={{ fontSize: 20, color: '#A0643D' }}>←</Text>
       </TouchableOpacity>
+
       <Text style={styles.header}>📮 小屋信箱</Text>
+
       <FlatList
         data={requests}
         keyExtractor={item => item._id}
+        contentContainerStyle={{ paddingBottom: 20 }}
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.card}
@@ -114,23 +129,25 @@ export default function MessagesScreen(){
               setShowModal(true);
             }}
           >
-            <Text style={styles.cardText}>来自 {item.fromInviteCode} 的邀请: {item.message}</Text>
+            <Text style={styles.cardText}>
+              来自 <Text style={{ fontWeight: 'bold' }}>{item.fromInviteCode}</Text> 的邀请: {item.message}
+            </Text>
           </TouchableOpacity>
         )}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
-        ListEmptyComponent={<Text style={styles.empty}>暂无新消息，下拉刷新</Text>}
+        ListEmptyComponent={
+          <Text style={styles.empty}>暂无新消息，下拉刷新</Text>
+        }
       />
 
       <IncomingRequestModal
         visible={showModal}
         request={activeRequest}
-        onClose={() => {
-          setShowModal(false);
-        }}
+        onClose={() => setShowModal(false)}
         onDismiss={() => {
-          setActiveRequest(null);     // ❗动画完成后再清空内容
+          setActiveRequest(null);
           setMyNameInSpace('');
         }}
         onAccept={handleAccept}
@@ -139,52 +156,40 @@ export default function MessagesScreen(){
         myNameInSpace={myNameInSpace}
         setMyNameInSpace={setMyNameInSpace}
       />
-
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  backButton: {
+  safe: { flex: 1, backgroundColor: '#FFF0E0' },
+  backIcon: {
     marginHorizontal: 12,
     marginBottom: 10,
     alignSelf: 'flex-start',
     paddingVertical: 6,
     paddingHorizontal: 12,
-    backgroundColor: '#E3F2FD',
+    backgroundColor: '#FFF8EF',
     borderRadius: 8,
-  },
-  backText: {
-    color: '#1976D2',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  container: {
-    flex: 1,
-    paddingTop: 40,
-    paddingHorizontal: 20,
-    backgroundColor: '#FAFAFA',
   },
   header: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 16,
-    color: '#444',
+    color: '#A0643D',
     textAlign: 'center',
+    marginVertical: 20,
   },
   card: {
-    marginHorizontal: 12,
-    padding: 16,
+    backgroundColor: '#FEF4E8',
     borderRadius: 16,
-    backgroundColor: '#FFF8F0',
+    padding: 16,
+    marginHorizontal: 20,
     marginBottom: 14,
     borderWidth: 1,
-    borderColor: '#FFE0B2',
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 3,
-    elevation: 1,
+    borderColor: '#F3D1B0',
+    shadowColor: '#F3D1B0',
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 2,
   },
   cardText: {
     fontSize: 14,
@@ -194,55 +199,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 40,
     fontSize: 15,
-    color: '#888',
-  },
-  modalBackground: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalCard: {
-    width: '80%',
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 16,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 12,
-  },
-  input: {
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 8,
-    marginTop: 10,
-    marginBottom: 16,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  acceptBtn: {
-    backgroundColor: '#C8E6C9',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  rejectBtn: {
-    backgroundColor: '#FFCDD2',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  acceptText: {
-    color: '#2E7D32',
-    fontWeight: 'bold',
-  },
-  rejectText: {
-    color: '#C62828',
-    fontWeight: 'bold',
+    color: '#A0643D',
   },
 });

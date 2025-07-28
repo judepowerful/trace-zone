@@ -8,12 +8,18 @@ const apiClient = axios.create({
   baseURL: BACKEND_URL,
 });
 
-// 请求拦截器：自动加上 x-user-id
+// 请求拦截器：自动加上 x-user-id & Authorization
 apiClient.interceptors.request.use(async (config) => {
   const userId = await AsyncStorage.getItem('userId');
+  const token = await AsyncStorage.getItem('token');
+
   if (userId) {
     config.headers['x-user-id'] = userId;
   }
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
+
   return config;
 });
 

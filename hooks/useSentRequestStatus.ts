@@ -1,6 +1,7 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 import { fetchRequestById } from '../utils/requestApi';
+import { useAuthStore } from '../stores/useAuthStore';
 
 export const useSentRequestStatus = (
   sentRequest: any,
@@ -8,10 +9,13 @@ export const useSentRequestStatus = (
   setSentRequest: (r: any) => void,
   setAccepted: (v: boolean) => void
 ) => {
+  const userId = useAuthStore(state => state.userId);
+  const token = useAuthStore(state => state.token);
   useFocusEffect(
     useCallback(() => {
-      if (!sentRequest || hasSpace) return;
-
+      // 没有 sentRequest、空间已满、或未注册时不轮询
+      if (!sentRequest || hasSpace || !userId || !token) return;
+      
       let isMounted = true;
 
       const checkStatus = async () => {

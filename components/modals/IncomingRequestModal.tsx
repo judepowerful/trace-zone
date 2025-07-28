@@ -54,26 +54,26 @@ export default function IncomingRequestModal({
 
           <View style={styles.buttonRow}>
             <TouchableOpacity
-              style={[styles.button, { backgroundColor: '#D6F0FF', opacity: isResponding ? 0.6 : 1 }]}
+              style={[styles.button, { backgroundColor: '#F3D1B0', opacity: isResponding ? 0.6 : 1 }]}
               disabled={isResponding}
               onPress={onReject}
             >
               {isResponding ? (
-                <ActivityIndicator color="#333" size="small" />
+                <ActivityIndicator color="#A0643D" size="small" />
               ) : (
-                <Text style={styles.buttonText}>拒绝</Text>
+                <Text style={[styles.buttonText, { color: '#A0643D' }]}>拒绝</Text>
               )}
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.button, { backgroundColor: '#FFDEDE', opacity: isResponding || !myNameInSpace.trim() ? 0.6 : 1 }]}
+              style={[styles.button, { backgroundColor: '#E39880', opacity: isResponding || !myNameInSpace.trim() ? 0.6 : 1 }]}
               disabled={isResponding || !myNameInSpace.trim()}
               onPress={() => onAccept(myNameInSpace.trim())}
             >
               {isResponding ? (
-                <ActivityIndicator color="#333" size="small" />
+                <ActivityIndicator color="#fff" size="small" />
               ) : (
-                <Text style={styles.buttonText}>接受</Text>
+                <Text style={[styles.buttonText, { color: '#fff' }]}>接受</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -91,12 +91,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FEF9F3', // 调整为更柔和的米色
     padding: 24,
-    borderRadius: 16,
+    borderRadius: 20,
     width: '85%',
+    alignItems: 'center',
+    shadowColor: '#F3D1B0',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 8,
     elevation: 5,
-    alignItems: 'flex-start',
   },
   closeButton: {
     position: 'absolute',
@@ -105,66 +109,85 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#FFCDD2',
+    backgroundColor: '#E39880',
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 3,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 3,
   },
   closeText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#C62828',
+    color: '#fff',
   },
   title: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 4,
-    color: '#333',
+    marginBottom: 8,
+    color: '#A0643D',
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 14,
-    color: '#666',
-    marginBottom: 20,
+    color: '#805B3D',
+    marginBottom: 24,
+    textAlign: 'center',
   },
   inputLabel: {
     fontSize: 14,
-    color: '#444',
+    color: '#A0643D',
     fontWeight: '600',
-    marginBottom: 6,
+    marginBottom: 8,
+    alignSelf: 'flex-start',
   },
   inputFancy: {
-    borderWidth: 1.5,
-    borderColor: '#aaa',
-    borderRadius: 12,
-    paddingVertical: 10,
+    borderWidth: 2,
+    borderColor: '#F3D1B0',
+    borderRadius: 16,
+    paddingVertical: 12,
     paddingHorizontal: 16,
     fontSize: 16,
-    backgroundColor: '#FAFAFA',
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 2,
+    backgroundColor: '#FEF4E8',
+    shadowColor: '#F3D1B0',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
     width: '100%',
+    height: 48, // 固定高度
+    color: '#805B3D',
   },
   inputHint: {
     fontSize: 12,
-    color: '#888',
-    marginTop: 4,
-    marginBottom: 20,
+    color: '#A0643D',
+    marginTop: 6,
+    marginBottom: 24,
+    alignSelf: 'flex-start',
   },
   buttonRow: {
     flexDirection: 'row',
-    gap: 12,
-    marginTop: 12,
+    gap: 16,
+    width: '100%',
   },
   button: {
+    flex: 1,
     paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 12,
+    paddingVertical: 14,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center', // 确保内容居中
+    minHeight: 48, // 固定最小高度
+    shadowColor: '#F3D1B0',
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 3,
   },
   buttonText: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#A0643D',
   },
 });

@@ -1,5 +1,5 @@
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
 import {
   View,
   Text,
@@ -10,17 +10,17 @@ import {
   Alert,
   ActivityIndicator,
   Modal,
+  Image,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Clipboard from 'expo-clipboard';
 
-import { useUserStatus } from '../hooks/useUserStatus';
-import { useIncomingRequests } from '../hooks/useIncomingRequests';
 import { useSentRequestStatus } from '../hooks/useSentRequestStatus';
 import SentRequestModal from '../components/modals/SentRequestModal';
-import apiClient from '../utils/apiClient'; // ✅ 使用统一的 apiClient
+import apiClient from '../utils/apiClient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useUnreadCount } from '@/hooks/useUnreadCount';
+import { useUserStore } from '../stores/useUserStore';
+import { useRequestStore } from '../stores/useRequestStore';
+import { useAppInitialization } from '../hooks/useAppInitialization';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -28,12 +28,24 @@ export default function HomeScreen() {
   const [isCancellingInvite, setIsCancellingInvite] = useState(false);
   const [accepted, setAccepted] = useState(false);
 
-  // hooks
-  const { checking, myCode, hasSpace, sentRequest, setSentRequest, userId} = useUserStatus(); 
-  const { requests, setRequests } = useIncomingRequests(); // 轮询查找收到的邀请
-  const unreadCount = useUnreadCount(requests);
-  useSentRequestStatus(sentRequest, hasSpace, setSentRequest, setAccepted); // 轮询查询发出邀请的状态
+  // stores
+  const { 
+    checking, 
+    myCode, 
+    hasSpace, 
+    sentRequest, 
+    setSentRequest,
+  } = useUserStore();
+  
+  const {
+    unreadCount
+  } = useRequestStore();
+  
+  // 应用初始化（包含用户初始化）
+  useAppInitialization();
 
+  // 轮询查询发出邀请的状态
+  useSentRequestStatus(sentRequest, hasSpace, setSentRequest, setAccepted);
 
   // ✅ loading 逻辑放这里
   if (checking) {
@@ -41,7 +53,7 @@ export default function HomeScreen() {
       <SafeAreaView style={styles.container}>
         <View style={styles.centerBox}>
           <ActivityIndicator size="large" color="#C2185B" />
-          <Text style={{ marginTop: 12, color: '#666' }}>正在加载...</Text>
+          <Text style={{ marginTop: 12, color: '#666' }}>痕迹小屋...</Text>
         </View>
       </SafeAreaView>
     );
@@ -87,6 +99,12 @@ export default function HomeScreen() {
       </TouchableOpacity>
       {/* 痕迹小屋 */}
       <View style={styles.centerBox}>
+        {/*
+        <Image
+          source={require('../assets/images/logo.png')}
+          style={styles.logoImage}
+          resizeMode="contain"
+        />    */}
         <Text style={styles.title}>🌿 痕迹小屋</Text>
         <Text style={styles.subtitle}>与你的搭子分享小痕迹</Text>
 
@@ -146,21 +164,6 @@ export default function HomeScreen() {
         <Text>🧹 清除所有缓存（保留身份）</Text>
       </TouchableOpacity>
 */}
-      {/* 👇 底部 User ID 展示 */}
-      <View
-        style={{
-          padding: 10,
-          backgroundColor: '#f4f4f4',
-          borderRadius: 12,
-          alignItems: 'center',
-          marginTop: 20,
-          marginRight: 40,
-          marginLeft: 40,
-        }}
-      >
-        <Text style={{ fontSize: 12, color: '#666' }}>🧬 当前用户 ID：</Text>
-        <Text style={{ fontSize: 12, color: '#666' }}>{userId}</Text>
-      </View>
 
       {/* 发出邀请的弹窗 */}
       {sentRequest && (
@@ -215,7 +218,7 @@ const screenWidth = Dimensions.get('window').width;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
+    backgroundColor: '#FFF0E0', // 调整为更温暖的米色
     paddingHorizontal: 24,
   },
   floatingCard: {
@@ -230,18 +233,18 @@ const styles = StyleSheet.create({
     marginHorizontal: 12,
     padding: 20,
     borderRadius: 16,
-    backgroundColor: '#FFF0F5',
+    backgroundColor: '#FEF9F3', // 调整为更柔和的米色
     borderWidth: 1,
-    borderColor: '#FFD1DC',
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowOffset: { width: 0, height: 3 },
-    shadowRadius: 6,
-    elevation: 3,
+    borderColor: '#F3D1B0',
+    shadowColor: '#F3D1B0',
+    shadowOpacity: 0.15, // 增加阴影强度
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 8,
+    elevation: 4,
   },
   codeLabel: {
     fontSize: 14,
-    color: '#666',
+    color: '#A0643D', // 调整为更深的棕色
     marginBottom: 20,
   },
   codeBoxRow: {
@@ -252,26 +255,27 @@ const styles = StyleSheet.create({
   codeBoxPrefix: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#C2185B',
+    color: '#A0643D',
     marginRight: 4,
   },
   codeBox: {
     width: 32,
     height: 40,
     borderWidth: 2,
-    borderColor: '#C2185B',
+    borderColor: '#A0643D',
     borderRadius: 6,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff0f5',
+    backgroundColor: '#FEF4E8',
     shadowColor: '#000',
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.08,
     shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 2,
+    shadowRadius: 3,
   },
   codeBoxText: {
     fontSize: 20,
     fontWeight: 'bold',
+    color: '#805B3D',
   },
   codeRow: {
     flexDirection: 'row',
@@ -282,8 +286,13 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     paddingHorizontal: 20,
     paddingVertical: 15,
-    backgroundColor: '#C2185B',
+    backgroundColor: '#E39880',
     borderRadius: 10,
+    shadowColor: '#E0A487',
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 3,
   },
   copyText: {
     color: '#fff',
@@ -295,14 +304,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  logoImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    marginBottom: 20,
+    shadowColor: '#F3D1B0',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 8,
+  },
   title: {
     fontSize: 36,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#A0643D',
+    shadowColor: '#F3D1B0',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: '#805B3D',
     marginTop: 8,
     marginBottom: 40,
   },
@@ -313,28 +336,32 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     alignItems: 'center',
     elevation: 3,
+    shadowColor: '#F3D1B0',
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 6,
   },
   startButton: {
-    backgroundColor: '#FFDEDE',
+    backgroundColor: '#FEF9F3', // 调整为更柔和的米色
   },
   joinButton: {
-    backgroundColor: '#D6F0FF',
+    backgroundColor: '#E0F8E9',
   },
   cardText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: '#A0643D', // 调整为更深的棕色
   },
   inviteCard: {
     marginTop: 20,
     marginHorizontal: 12,
     padding: 20,
     borderRadius: 16,
-    backgroundColor: '#E0F8E9',  // 柔和绿色背景
+    backgroundColor: '#FEF9F3', // 调整为更柔和的米色
     borderWidth: 1,
-    borderColor: '#A0D8B3',
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
+    borderColor: '#F3D1B0',
+    shadowColor: '#F3D1B0',
+    shadowOpacity: 0.12,
     shadowOffset: { width: 0, height: 3 },
     shadowRadius: 6,
     elevation: 3,
@@ -345,7 +372,7 @@ const styles = StyleSheet.create({
   },
   inviteText: {
     fontSize: 14,
-    color: '#2E7D32', // 深绿文字
+    color: '#A0643D',
     fontWeight: '600',
     flexShrink: 1,
   },
@@ -356,20 +383,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalCard: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FEF9F3', // 调整为更柔和的米色
     padding: 24,
     borderRadius: 16,
     width: '80%',
     alignItems: 'center',
+    shadowColor: '#F3D1B0',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 8,
+    elevation: 5,
   },
   modalTitle: {
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 12,
+    color: '#A0643D',
   },
   modalMessage: {
     fontSize: 14,
     marginBottom: 20,
+    color: '#805B3D',
   },
   modalBtns: {
     flexDirection: 'row',
@@ -379,6 +413,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
+    backgroundColor: '#E39880',
+    shadowColor: '#E0A487',
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 3,
   },
   closeButton: {
     position: 'absolute',
@@ -387,7 +427,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#FFCDD2', // 柔和的红色背景
+    backgroundColor: '#E39880',
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 4,
@@ -399,7 +439,7 @@ const styles = StyleSheet.create({
   closeText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#C62828',
+    color: '#fff',
   },
   inputBox: {
     borderColor: '#ccc',
@@ -409,11 +449,11 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     width: '100%',
   },
-    cancelInviteBtn: {
+  cancelInviteBtn: {
     marginTop: 10,
     paddingVertical: 8,
     paddingHorizontal: 20,
-    backgroundColor: '#FFEBEE',
+    backgroundColor: '#FEF9F3', // 调整为更柔和的米色
     borderRadius: 20,
     alignSelf: 'flex-end',
     shadowColor: '#000',
@@ -424,7 +464,7 @@ const styles = StyleSheet.create({
   },
   cancelInviteText: {
     fontSize: 14,
-    color: '#C62828',
+    color: '#A0643D',
     fontWeight: 'bold',
   },
   envelopeButton: {
@@ -437,7 +477,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 4,
     right: -2,
-    backgroundColor: 'red',
+    backgroundColor: '#E39880',
     borderRadius: 10,
     paddingHorizontal: 5,
     minWidth: 20,
@@ -450,5 +490,4 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: 'bold',
   },
-
 });

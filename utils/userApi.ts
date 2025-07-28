@@ -1,3 +1,4 @@
+// utils/userApi.ts
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
@@ -6,21 +7,59 @@ import apiClient from './apiClient';
 // ✅ 注册用户
 export const registerUser = async (userId: string) => {
   try {
-    await apiClient.post('/api/users/register', { userId });
+    const res = await apiClient.post('/api/users/register', { userId });
+    const { inviteCode, token } = res.data;
+    await AsyncStorage.setItem('inviteCode', inviteCode);
+    await AsyncStorage.setItem('token', token);
+    console.log("🎉 注册成功:", { userId, inviteCode });
   } catch (err) {
     console.warn('用户注册失败', err);
+    throw err; // 让上层决定要不要走 refresh
   }
 };
 
+// ✅ 刷新 token
+export const refreshToken = async (userId: string) => {
+  try {
+    const oldToken = await AsyncStorage.getItem('token');
+    if (!oldToken) throw new Error("No old token found");
+
+    const res = await apiClient.post('/api/users/refresh-token', {
+      userId,
+      oldToken
+    });
+
+    await AsyncStorage.setItem('token', res.data.token);
+    console.log("🔄 成功刷新 token");
+  } catch (err: any) {
+    console.warn('🔁 无法刷新 token (将触发重新注册):', err.message);
+    throw err;
+  }
+};
+
+
 // ✅ 得到用户ID（首次生成并注册）
 export const getOrCreateUserId = async (): Promise<string> => {
-  let id = await AsyncStorage.getItem('userId');
-  if (!id) {
-    id = uuidv4();
-    await AsyncStorage.setItem('userId', id);
-    await registerUser(id);
+  let userId = await AsyncStorage.getItem('userId');
+  if (!userId) {
+    userId = uuidv4();
+    await AsyncStorage.setItem('userId', userId);
+    await registerUser(userId);
+    return userId;
   }
-  return id;
+
+  // 有 userId 就尝试刷新 token
+  try {
+    await refreshToken(userId);
+  } catch (err) {
+    console.log("⚠️ token 失效，重新注册");
+    userId = uuidv4();
+    await AsyncStorage.setItem('userId', userId);
+    await AsyncStorage.removeItem('inviteCode:self');
+    await registerUser(userId);
+  }
+
+  return userId;
 };
 
 // ✅ 获取当前用户的邀请码

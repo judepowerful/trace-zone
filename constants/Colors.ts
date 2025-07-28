@@ -1,26 +1,34 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+ * 应用中使用的基础颜色
  */
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
-
 export const Colors = {
-  light: {
-    text: '#11181C',
-    background: '#fff',
-    tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
-  },
-  dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
-  },
+  // 主色调
+  primary: '#A0643D',
+  secondary: '#C78B60',
+  accent: '#E39880',
+  
+  // 背景色
+  background: '#FFF0E0',
+  cardBackground: '#FEF9F3',
+  surfaceBackground: '#FDF6EC',
+  
+  // 文字颜色
+  text: '#11181C',
+  textSecondary: '#687076',
+  
+  // 状态颜色
+  success: '#43a047',
+  warning: '#ff9800',
+  error: '#d32f2f',
+  danger: '#ff6b6b',
+  
+  // 边框和阴影
+  border: 'rgba(160, 100, 61, 0.1)',
+  shadow: '#F3D1B0',
+  
+  // 按钮颜色
+  buttonPrimary: '#E39880',
+  buttonSecondary: '#F3D1B0',
+  buttonDanger: '#ffebee',
 };
