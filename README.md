@@ -19,6 +19,7 @@
 - `assets/`：静态资源（图片、字体等）
 
 ## 常用命令
+- 安装依赖：`npm install`
 - 启动开发：`npx expo start`
 - Android 预览：`npx expo start --android`
 - iOS 预览：`npx expo start --ios`

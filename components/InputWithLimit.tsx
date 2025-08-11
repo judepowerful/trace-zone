@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, TextInput, Text, StyleSheet } from 'react-native';
+import { Colors, ColorSchemes } from '../constants/Colors';
 
 type Props = {
   value: string;
@@ -30,7 +31,7 @@ export default function InputWithLimit({
         placeholder={placeholder}
         maxLength={maxLength}
         multiline={multiline}
-        placeholderTextColor="#999"
+        placeholderTextColor={Colors.text.placeholder}
         style={[
           styles.input,
           multiline && styles.multiline,
@@ -52,12 +53,12 @@ const styles = StyleSheet.create({
   input: {
     height: 48,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: ColorSchemes.input.border,
     borderRadius: 12,
     paddingHorizontal: 12,
     fontSize: 16,
-    backgroundColor: '#fafafa',
-    color: '#333',
+    backgroundColor: ColorSchemes.input.background,
+    color: ColorSchemes.input.text,
   },
   multiline: {
     height: 80,
@@ -72,13 +73,13 @@ const styles = StyleSheet.create({
   },
   counter: {
     fontSize: 13,
-    color: '#999',
+    color: Colors.text.placeholder,
   },
   errorText: {
     fontSize: 13,
-    color: '#F44336',
+    color: Colors.border.error,
   },
   errorInput: {
-    borderColor: '#F44336',
+    borderColor: Colors.border.error,
   },
 });

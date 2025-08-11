@@ -21,6 +21,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useUserStore } from '../stores/useUserStore';
 import { useRequestStore } from '../stores/useRequestStore';
 import { useAppInitialization } from '../hooks/useAppInitialization';
+import { Colors, ColorSchemes } from '../constants/Colors';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -52,8 +53,8 @@ export default function HomeScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.centerBox}>
-          <ActivityIndicator size="large" color="#C2185B" />
-          <Text style={{ marginTop: 12, color: '#666' }}>痕迹小屋...</Text>
+          <ActivityIndicator size="large" color={Colors.brand} />
+          <Text style={{ marginTop: 12, color: Colors.text.light }}>痕迹小屋...</Text>
         </View>
       </SafeAreaView>
     );
@@ -73,16 +74,18 @@ export default function HomeScreen() {
                 <Text style={styles.codeBoxText}>{char}</Text>
               </View>
             ))}
+            <TouchableOpacity
+              onPress={async () => {
+                await Clipboard.setStringAsync(myCode);
+                Alert.alert('已复制', '门牌码已复制到剪贴板');
+              }}
+              style={styles.copyButton}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Icon name="content-copy" size={18} color={Colors.text.white} />
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity
-            onPress={async () => {
-              await Clipboard.setStringAsync(myCode);
-              Alert.alert('已复制', '门牌码已复制到剪贴板');
-            }}
-            style={styles.copyButton}
-          >
-            <Text style={styles.copyText}>复制</Text>
-          </TouchableOpacity>
+          
         </View>
       </View>
       {/* 信封图标 + New Badge */}
@@ -90,7 +93,7 @@ export default function HomeScreen() {
         onPress={() => router.push('/message')}
         style={styles.envelopeButton}
       >
-        <Icon name="mailbox-outline" size={32} color="#C2185B" />
+        <Icon name="mailbox-outline" size={32} color={Colors.brand} />
         {unreadCount > 0 && (
           <View style={styles.badgeCircle}>
             <Text style={styles.badgeText}>{unreadCount}</Text>
@@ -196,13 +199,13 @@ export default function HomeScreen() {
               <Text style={styles.modalTitle}>🎉 恭喜！</Text>
               <Text style={styles.modalMessage}>对方已接受你的邀请，小屋已创建成功！</Text>
               <TouchableOpacity
-                style={[styles.modalBtn, { backgroundColor: '#C8E6C9' }]}
+                style={[styles.modalBtn, { backgroundColor: Colors.button.success }]}
                 onPress={() => {
                   setAccepted(false);
                   router.push('/space-home');
                 }}
               >
-                <Text style={{ fontWeight: 'bold', color: '#2E7D32' }}>🚪 进入我的小屋</Text>
+                <Text style={{ fontWeight: 'bold', color: Colors.status.success }}>🚪 进入我的小屋</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -218,7 +221,7 @@ const screenWidth = Dimensions.get('window').width;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF0E0', // 调整为更温暖的米色
+    backgroundColor: Colors.background,
     paddingHorizontal: 24,
   },
   floatingCard: {
@@ -231,43 +234,45 @@ const styles = StyleSheet.create({
   codeCard: {
     marginTop: 30,
     marginHorizontal: 12,
-    padding: 20,
+    padding: 22,
     borderRadius: 16,
-    backgroundColor: '#FEF9F3', // 调整为更柔和的米色
+    backgroundColor: ColorSchemes.card.background,
     borderWidth: 1,
-    borderColor: '#F3D1B0',
-    shadowColor: '#F3D1B0',
-    shadowOpacity: 0.15, // 增加阴影强度
+    borderColor: ColorSchemes.card.border,
+    shadowColor: ColorSchemes.card.shadow,
+    shadowOpacity: 0.15,
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 8,
     elevation: 4,
   },
   codeLabel: {
     fontSize: 14,
-    color: '#A0643D', // 调整为更深的棕色
+    color: Colors.text.primary,
     marginBottom: 20,
   },
   codeBoxRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8, // 统一的间距
+    flex: 1, // 占用剩余空间
+    justifyContent: 'flex-start', // 确保从左开始排列
   },
   codeBoxPrefix: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#A0643D',
+    color: Colors.text.primary,
     marginRight: 4,
   },
   codeBox: {
     width: 32,
     height: 40,
     borderWidth: 2,
-    borderColor: '#A0643D',
+    borderColor: Colors.text.primary,
     borderRadius: 6,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FEF4E8',
-    shadowColor: '#000',
+    backgroundColor: Colors.surfaceBackground,
+    shadowColor: Colors.shadow.dark,
     shadowOpacity: 0.08,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 3,
@@ -275,29 +280,27 @@ const styles = StyleSheet.create({
   codeBoxText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#805B3D',
+    color: Colors.text.secondary,
   },
   codeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    width: '100%', // 确保填满宽度
   },
   copyButton: {
-    marginLeft: 10,
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    backgroundColor: '#E39880',
-    borderRadius: 10,
-    shadowColor: '#E0A487',
+    marginLeft: 5,
+    width: 40, // 与门牌号盒子宽度一致
+    height: 40,
+    backgroundColor: ColorSchemes.button.primary.background,
+    borderRadius: 6, // 与门牌号盒子圆角一致
+    shadowColor: ColorSchemes.button.primary.shadow,
     shadowOpacity: 0.3,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
     elevation: 3,
-  },
-  copyText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
+    alignItems: 'center', // 确保图标居中
+    justifyContent: 'center', // 确保图标居中
+    flexShrink: 0, // 防止按钮被压缩
   },
   centerBox: {
     flex: 1,
@@ -317,15 +320,15 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 36,
     fontWeight: 'bold',
-    color: '#A0643D',
-    shadowColor: '#F3D1B0',
+    color: Colors.text.primary,
+    shadowColor: ColorSchemes.card.shadow,
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
   },
   subtitle: {
     fontSize: 16,
-    color: '#805B3D',
+    color: Colors.text.secondary,
     marginTop: 8,
     marginBottom: 40,
   },
@@ -342,25 +345,25 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
   },
   startButton: {
-    backgroundColor: '#FEF9F3', // 调整为更柔和的米色
+    backgroundColor: ColorSchemes.card.background,
   },
   joinButton: {
-    backgroundColor: '#E0F8E9',
+    backgroundColor: Colors.button.success,
   },
   cardText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#A0643D', // 调整为更深的棕色
+    color: Colors.text.primary,
   },
   inviteCard: {
     marginTop: 20,
     marginHorizontal: 12,
     padding: 20,
     borderRadius: 16,
-    backgroundColor: '#FEF9F3', // 调整为更柔和的米色
+    backgroundColor: ColorSchemes.card.background,
     borderWidth: 1,
-    borderColor: '#F3D1B0',
-    shadowColor: '#F3D1B0',
+    borderColor: ColorSchemes.card.border,
+    shadowColor: ColorSchemes.card.shadow,
     shadowOpacity: 0.12,
     shadowOffset: { width: 0, height: 3 },
     shadowRadius: 6,
@@ -372,23 +375,23 @@ const styles = StyleSheet.create({
   },
   inviteText: {
     fontSize: 14,
-    color: '#A0643D',
+    color: Colors.text.primary,
     fontWeight: '600',
     flexShrink: 1,
   },
   modalBackground: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: Colors.special.modalOverlay,
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalCard: {
-    backgroundColor: '#FEF9F3', // 调整为更柔和的米色
+    backgroundColor: ColorSchemes.card.background,
     padding: 24,
     borderRadius: 16,
     width: '80%',
     alignItems: 'center',
-    shadowColor: '#F3D1B0',
+    shadowColor: ColorSchemes.card.shadow,
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 8,
@@ -398,12 +401,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 12,
-    color: '#A0643D',
+    color: Colors.text.primary,
   },
   modalMessage: {
     fontSize: 14,
     marginBottom: 20,
-    color: '#805B3D',
+    color: Colors.text.secondary,
   },
   modalBtns: {
     flexDirection: 'row',
@@ -413,8 +416,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
-    backgroundColor: '#E39880',
-    shadowColor: '#E0A487',
+    backgroundColor: ColorSchemes.button.primary.background,
+    shadowColor: ColorSchemes.button.primary.shadow,
     shadowOpacity: 0.3,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
@@ -427,11 +430,11 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#E39880',
+    backgroundColor: ColorSchemes.button.primary.background,
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 4,
-    shadowColor: '#000',
+    shadowColor: Colors.shadow.dark,
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 3,
@@ -439,10 +442,10 @@ const styles = StyleSheet.create({
   closeText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#fff',
+    color: ColorSchemes.button.primary.text,
   },
   inputBox: {
-    borderColor: '#ccc',
+    borderColor: Colors.border.secondary,
     borderWidth: 1,
     borderRadius: 8,
     padding: 8,
@@ -453,10 +456,10 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingVertical: 8,
     paddingHorizontal: 20,
-    backgroundColor: '#FEF9F3', // 调整为更柔和的米色
+    backgroundColor: ColorSchemes.card.background,
     borderRadius: 20,
     alignSelf: 'flex-end',
-    shadowColor: '#000',
+    shadowColor: Colors.shadow.dark,
     shadowOpacity: 0.05,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 3,
@@ -464,7 +467,7 @@ const styles = StyleSheet.create({
   },
   cancelInviteText: {
     fontSize: 14,
-    color: '#A0643D',
+    color: Colors.text.primary,
     fontWeight: 'bold',
   },
   envelopeButton: {
@@ -477,7 +480,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 4,
     right: -2,
-    backgroundColor: '#E39880',
+    backgroundColor: ColorSchemes.button.primary.background,
     borderRadius: 10,
     paddingHorizontal: 5,
     minWidth: 20,
@@ -486,7 +489,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   badgeText: {
-    color: 'white',
+    color: ColorSchemes.button.primary.text,
     fontSize: 10,
     fontWeight: 'bold',
   },

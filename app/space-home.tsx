@@ -329,7 +329,6 @@ const styles = StyleSheet.create({
     shadowColor: '#F3D1B0',
     shadowOpacity: 0.5,
     shadowRadius: 10,
-    elevation: 4,
     position: 'relative',
   },
   backIcon: {

@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
+import { Colors, ColorSchemes } from '../../constants/Colors';
 
 export default function CustomModal({
   visible,
@@ -55,47 +56,57 @@ export default function CustomModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: Colors.special.modalOverlay,
     justifyContent: 'center',
     alignItems: 'center',
   },
   modal: {
-    backgroundColor: '#fff',
+    backgroundColor: Colors.modalBackground,
     padding: 24,
     borderRadius: 20,
     width: '80%',
     alignItems: 'center',
+    shadowColor: Colors.shadow.dark,
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 5,
   },
   icon: {
     fontSize: 40,
     marginBottom: 10,
   },
   successIcon: {
-    color: '#4CAF50',
+    color: Colors.status.success,
   },
   errorIcon: {
-    color: '#F44336',
+    color: Colors.status.error,
   },
   title: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: '#333',
+    color: Colors.text.dark,
   },
   message: {
     fontSize: 15,
     textAlign: 'center',
-    color: '#666',
+    color: Colors.text.light,
     marginBottom: 20,
   },
   button: {
-    backgroundColor: '#C2185B',
+    backgroundColor: Colors.brand,
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 16,
+    shadowColor: Colors.shadow.dark,
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
   buttonText: {
-    color: '#fff',
+    color: Colors.text.white,
     fontWeight: '600',
   },
 });

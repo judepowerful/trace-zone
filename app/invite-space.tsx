@@ -15,6 +15,7 @@ import { useUserStatus } from '../hooks/useUserStatus';
 import CustomModal from '../components/modals/CustomModal';
 import { useSafeBack } from '../hooks/useSafeBack';
 import InputWithLimit from '../components/InputWithLimit';
+import { Colors, ColorSchemes } from '../constants/Colors';
 
 export default function InviteSpace() {
   const router = useRouter();
@@ -22,7 +23,7 @@ export default function InviteSpace() {
   const [targetInviteCode, setTargetInviteCode] = useState('');
   const [spaceName, setSpaceName] = useState('');
   const [myNameInSpace, setMyNameInSpace] = useState('');
-  const [customMessage, setCustomMessage] = useState('🏡 一起打造一个我们的小天地吧！');
+  const [customMessage, setCustomMessage] = useState('一起打造一个我们的小天地吧！');
   const [sending, setSending] = useState(false);
   const { sentRequest } = useUserStatus();
   
@@ -66,9 +67,9 @@ export default function InviteSpace() {
       return;
     }
 
-    if (trimmedMsg.length > 50) {
+    if (trimmedMsg.length > 100) {
       setModalType('error');
-      setModalMsg('留言内容不能超过 50 个字');
+      setModalMsg('留言内容不能超过 100 个字');
       setModalVisible(true);
       return;
     }
@@ -110,16 +111,17 @@ export default function InviteSpace() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.title}>🚪 邀请搭建小屋</Text>
+        <Text style={styles.title}>🚪 送出邀请函</Text>
+        <Text style={styles.subtitle}>填写信息，向对方发出邀请</Text>
 
         <View style={styles.card}>
-          <Text style={styles.label}>🧬 对方的门牌号</Text>
+          <Text style={styles.label}>🧬 门牌号</Text>
           <TextInput
             placeholder="例如：6767F2"
             value={targetInviteCode}
             onChangeText={setTargetInviteCode}
             style={styles.input}
-            placeholderTextColor="#999"
+            placeholderTextColor={Colors.text.placeholder}
           />
           <Text style={styles.label}>✏️ 小屋名称</Text>
           <InputWithLimit
@@ -128,38 +130,38 @@ export default function InviteSpace() {
             maxLength={12}
             placeholder="例如：我们的秘密基地"
           />
-
-          <Text style={styles.label}>📇 你在小屋中的名字</Text>
+          <Text style={styles.label}>📇 你的名字</Text>
           <InputWithLimit
             value={myNameInSpace}
             onChangeText={setMyNameInSpace}
             maxLength={10}
             placeholder="例如：小禹 / 小琪"
           />
-
-          <Text style={styles.label}>💬 留言</Text>
+          <Text style={styles.label}>💬 说点什么...</Text>
           <InputWithLimit
             value={customMessage}
             onChangeText={setCustomMessage}
-            maxLength={50}
+            maxLength={100}
             multiline
             placeholder="写点什么让对方更有感觉吧..."
           />
 
-          <TouchableOpacity
-            style={[styles.sendBtn, sending && { opacity: 0.6 }]}
-            onPress={handleSend}
-            disabled={sending}
-          >
-            <Text style={styles.sendText}>{sending ? '🚀 发送中...' : '📩 发送邀请'}</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={[styles.sendBtn, sending && { opacity: 0.6 }]}
+              onPress={handleSend}
+              disabled={sending}
+            >
+              <Text style={styles.sendText}>{sending ? '🚀 发送中...' : '寄出'}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <TouchableOpacity
           style={styles.backHomeBtn}
           onPress={safeBack}
         >
-          <Text style={styles.backHomeText}>🏃‍♂️ 离开小屋，返回首页</Text>
+          <Text style={styles.backHomeText}>🏃舍弃</Text>
         </TouchableOpacity>
       </ScrollView>
       <CustomModal
@@ -188,7 +190,7 @@ export default function InviteSpace() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
+    backgroundColor: Colors.background, // 使用统一的背景色
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -199,61 +201,82 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
+    marginBottom: 8,
+    color: Colors.text.primary, // 使用主要文字颜色
+  },
+  subtitle: {
+    fontSize: 16,
+    color: Colors.text.secondary,
     marginBottom: 30,
-    color: '#333',
+    textAlign: 'center',
   },
   card: {
     width: '100%',
-    backgroundColor: '#fff',
-    borderRadius: 16,
+    backgroundColor: ColorSchemes.card.background, // 使用卡片背景色
+    borderRadius: 24,
     padding: 24,
     elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
+    shadowColor: ColorSchemes.card.shadow, // 使用统一的阴影色
+    shadowOpacity: 0.15, // 增加阴影强度，与其他页面保持一致
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 4 },
-  },
+    borderWidth: 1,
+    borderColor: ColorSchemes.card.border, // 添加边框，与其他页面保持一致
+  }, 
   label: {
     fontSize: 16,
     marginBottom: 6,
-    color: '#444',
+    color: Colors.text.primary, // 使用主要文字颜色
+    fontWeight: '600', // 增加字重，提升视觉层次
   },
   input: {
     height: 48,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: ColorSchemes.input.border, // 使用输入框边框色
     borderRadius: 12,
     paddingHorizontal: 12,
     fontSize: 16,
-    backgroundColor: '#fafafa',
-    color: '#333',
+    backgroundColor: ColorSchemes.input.background, // 使用输入框背景色
+    color: ColorSchemes.input.text, // 使用输入框文字色
     marginBottom: 20,
   },
+  buttonContainer: {
+    alignItems: 'center',
+    marginTop: 20,
+  },
   sendBtn: {
-    marginTop: 10,
-    backgroundColor: '#C2185B',
-    paddingVertical: 14,
+    backgroundColor: Colors.brand, // 使用品牌色，与首页保持一致
+    paddingVertical: 16,
+    paddingHorizontal: 32,
     borderRadius: 25,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
+    shadowColor: Colors.shadow.dark, // 使用深色阴影
+    shadowOpacity: 0.15, // 增加阴影强度
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 4 },
+    elevation: 3, // 增加阴影
+    minWidth: 200, // 设置最小宽度
   },
   sendText: {
-    color: '#fff',
+    color: Colors.text.white, // 使用白色文字
     fontSize: 17,
     fontWeight: '700',
   },
   backHomeBtn: {
     marginTop: 30,
-    backgroundColor: '#EEEEEE',
+    backgroundColor: ColorSchemes.button.secondary.background, // 使用次要按钮背景色
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 24,
+    shadowColor: ColorSchemes.button.secondary.shadow, // 使用次要按钮阴影色
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
   },
   backHomeText: {
     fontSize: 15,
-    color: '#555',
+    color: ColorSchemes.button.secondary.text, // 使用次要按钮文字色
+    fontWeight: '600', // 增加字重
   },
 });
