@@ -1,7 +1,7 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
-import { fetchRequestById } from '../utils/requestApi';
 import { useAuthStore } from '../stores/useAuthStore';
+import { fetchRequestById } from '../utils/requestApi';
 
 export const useSentRequestStatus = (
   sentRequest: any,
@@ -19,7 +19,6 @@ export const useSentRequestStatus = (
       let isMounted = true;
 
       const checkStatus = async () => {
-        console.log('📤 正在轮询 Sent Request 状态 at', new Date().toLocaleTimeString());
         const updated = await fetchRequestById(sentRequest._id);
         if (!isMounted) return;
 
@@ -41,6 +40,7 @@ export const useSentRequestStatus = (
         }
       };
 
+      console.log('📤 开始轮询 Sent Request 状态');
       const interval = setInterval(checkStatus, 4000);
       checkStatus(); // 初始执行一次
 

@@ -1,21 +1,22 @@
 import { useRouter } from 'expo-router';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Alert,
+  SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
-  SafeAreaView,
-  ScrollView,
 } from 'react-native';
-import apiClient from '../utils/apiClient'; // ✅ 引入统一 apiClient
-import { useUserStatus } from '../hooks/useUserStatus';
-import CustomModal from '../components/modals/CustomModal';
-import { useSafeBack } from '../hooks/useSafeBack';
 import InputWithLimit from '../components/InputWithLimit';
+import CustomModal from '../components/modals/CustomModal';
 import { Colors, ColorSchemes } from '../constants/Colors';
+import { useSafeBack } from '../hooks/useSafeBack';
+import { useUserStatus } from '../hooks/useUserStatus';
+import { useUserStore } from '../stores/useUserStore';
+import apiClient from '../utils/apiClient'; // ✅ 引入统一 apiClient
 
 export default function InviteSpace() {
   const router = useRouter();
@@ -26,6 +27,7 @@ export default function InviteSpace() {
   const [customMessage, setCustomMessage] = useState('一起打造一个我们的小天地吧！');
   const [sending, setSending] = useState(false);
   const { sentRequest } = useUserStatus();
+  const { setSentRequest } = useUserStore();
   
   // 在组件中添加状态
   const [modalVisible, setModalVisible] = useState(false);
@@ -83,12 +85,15 @@ export default function InviteSpace() {
 
     setSending(true);
     try {
-      await apiClient.post('/api/requests', {
+      const response = await apiClient.post('/api/requests', {
         toInviteCode: trimmedCode,
         message: trimmedMsg,
         spaceName: trimmedSpace,
         fromUserName: trimmedName,
       });
+
+      // 更新 useUserStore 中的 sentRequest 状态
+      setSentRequest(response.data);
 
       setModalType('success');
       setModalMsg('等待对方接受后你们将自动建立小屋');
@@ -177,7 +182,7 @@ export default function InviteSpace() {
           setModalType(null);
           setModalMsg('');
           if (modalType === 'success') {
-            safeBack();
+            router.replace('/');
           }
         }}
       />

@@ -1,27 +1,26 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
+import React, { useState } from 'react';
 import {
-  View,
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+  Modal,
+  SafeAreaView,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  StyleSheet,
-  Dimensions,
-  SafeAreaView,
-  Alert,
-  ActivityIndicator,
-  Modal,
-  Image,
+  View
 } from 'react-native';
-import * as Clipboard from 'expo-clipboard';
 
-import { useSentRequestStatus } from '../hooks/useSentRequestStatus';
-import SentRequestModal from '../components/modals/SentRequestModal';
-import apiClient from '../utils/apiClient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useUserStore } from '../stores/useUserStore';
-import { useRequestStore } from '../stores/useRequestStore';
-import { useAppInitialization } from '../hooks/useAppInitialization';
+import SentRequestModal from '../components/modals/SentRequestModal';
 import { Colors, ColorSchemes } from '../constants/Colors';
+import { useAppInitialization } from '../hooks/useAppInitialization';
+import { useSentRequestStatus } from '../hooks/useSentRequestStatus';
+import { useRequestStore } from '../stores/useRequestStore';
+import { useUserStore } from '../stores/useUserStore';
+import apiClient from '../utils/apiClient';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -37,7 +36,7 @@ export default function HomeScreen() {
     sentRequest, 
     setSentRequest,
   } = useUserStore();
-  
+
   const {
     unreadCount
   } = useRequestStore();
@@ -149,24 +148,6 @@ export default function HomeScreen() {
           </>
         )}
       </View>
-{/*
-      <TouchableOpacity
-        onPress={async () => {
-          try {
-            const userId = await AsyncStorage.getItem('userId'); // 先取出 userId
-            await AsyncStorage.clear();                           // 清除所有缓存
-            if (userId) {
-              await AsyncStorage.setItem('userId', userId);       // 重新写入 userId
-            }
-            Alert.alert('清除成功', '除了身份，其它本地缓存都已清除');
-          } catch (e) {
-            Alert.alert('❌ 清除失败', '请稍后再试');
-          }
-        }}
-      >
-        <Text>🧹 清除所有缓存（保留身份）</Text>
-      </TouchableOpacity>
-*/}
 
       {/* 发出邀请的弹窗 */}
       {sentRequest && (
