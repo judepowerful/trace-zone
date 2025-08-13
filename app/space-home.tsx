@@ -6,16 +6,16 @@ import { useRouter } from 'expo-router';
 import LottieView from 'lottie-react-native';
 import PhotoPostcardAnimatedModal from '../components/modals/PhotoPostcardAnimatedModal';
 
-import { useWeather } from '../hooks/useWeather';
-import { useDeleteSpace } from '../hooks/useDeleteSpace';
-import useSpaceSocket from '../hooks/useSpaceSocket';
-import { usePresenceStore } from '../stores/usePresenceStore';
-import { useSpaceStore } from '../stores/useSpaceStore';
-import { useAuthStore } from '../stores/useAuthStore';
-import { reportLocation } from '../utils/spaceApi';
-import { useMyLocationAndReport } from '../hooks/useMyLocationAndReport';
-import useFeedCat from '../hooks/useFeedCat';
-import { formatLocationTime } from '../utils/spaceApi';
+import { useWeather } from '../features/space/hooks/useWeather';
+import { useDeleteSpace } from '../features/space/hooks/useDeleteSpace';
+import useSpaceSocket from '../features/space/hooks/useSpaceSocket';
+import { usePresenceStore } from '../features/space/store/usePresenceStore';
+import { useSpaceStore } from '../features/space/store/useSpaceStore';
+import { useAuthStore } from '../shared/stores/useAuthStore';
+import { reportLocation } from '../features/space/api/spaceApi';
+import { useMyLocationAndReport } from '../features/space/hooks/useMyLocationAndReport';
+import useFeedCat from '../features/space/hooks/useFeedCat';
+import { formatLocationTime } from '../features/space/api/spaceApi';
 
 import CatSprite from '../components/CatSprite'
 

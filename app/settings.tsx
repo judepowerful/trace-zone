@@ -1,7 +1,7 @@
 import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useDeleteSpace } from '../hooks/useDeleteSpace';
+import { useDeleteSpace } from '../features/space/hooks/useDeleteSpace';
 
 export default function Settings() {
   const router = useRouter();

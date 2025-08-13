@@ -11,13 +11,15 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { fetchRequestById, respondToRequest, getPendingRequestsForUser } from '../utils/requestApi';
-import { markAllAsRead } from '../hooks/useUnreadCount';
-import IncomingRequestModal from '../components/modals/IncomingRequestModal';
-import { useUserStore } from '../stores/useUserStore';
+import { fetchRequestById, respondToRequest, getPendingRequestsForUser } from '../features/requests/api/requestApi';
+import { markAllAsRead } from '../features/space/hooks/useUnreadCount';
+import IncomingRequestModal from '../features/requests/components/IncomingRequestModal';
+import { useUserStore } from '../features/user/store/useUserStore';
+import { useRequestStore } from '../features/requests/store/useRequestStore';
 
 export default function MessagesScreen(){
-  const [requests, setRequests] = useState<any[]>([]);
+  const requests = useRequestStore(state => state.requests);
+  const setRequests = useRequestStore(state => state.setRequests);
   const [refreshing, setRefreshing] = useState(false);
   const [activeRequest, setActiveRequest] = useState<any | null>(null);
   const [isResponding, setIsResponding] = useState(false);
@@ -26,18 +28,10 @@ export default function MessagesScreen(){
   const router = useRouter();
   const { updateSpaceStatus } = useUserStore();
 
+  // 请求变化时，标记已读
   useEffect(() => {
-    const load = async () => {
-      try {
-        const latest = await getPendingRequestsForUser();
-        setRequests(latest);
-        markAllAsRead(latest);
-      } catch (e) {
-        Alert.alert('加载失败', '请检查网络');
-      }
-    };
-    load();
-  }, []);
+    markAllAsRead(requests);
+  }, [requests]);
 
   const onRefresh = async () => {
     setRefreshing(true);

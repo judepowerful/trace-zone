@@ -10,12 +10,13 @@ import {
   SafeAreaView,
   ScrollView,
 } from 'react-native';
-import apiClient from '../utils/apiClient'; // ✅ 引入统一 apiClient
-import { useUserStatus } from '../hooks/useUserStatus';
+import apiClient from '../shared/api/client';
+import { useUserStatus } from '../features/user/hooks/useUserStatus';
 import CustomModal from '../components/modals/CustomModal';
-import { useSafeBack } from '../hooks/useSafeBack';
+import { useSafeBack } from '../shared/hooks/useSafeBack';
 import InputWithLimit from '../components/InputWithLimit';
 import { Colors, ColorSchemes } from '../constants/Colors';
+import { useUserStore } from '../features/user/store/useUserStore';
 
 export default function InviteSpace() {
   const router = useRouter();
@@ -26,6 +27,7 @@ export default function InviteSpace() {
   const [customMessage, setCustomMessage] = useState('一起打造一个我们的小天地吧！');
   const [sending, setSending] = useState(false);
   const { sentRequest } = useUserStatus();
+  const setGlobalSentRequest = useUserStore(state => state.setSentRequest);
   
   // 在组件中添加状态
   const [modalVisible, setModalVisible] = useState(false);
@@ -83,12 +85,14 @@ export default function InviteSpace() {
 
     setSending(true);
     try {
-      await apiClient.post('/api/requests', {
+      const res = await apiClient.post('/api/requests', {
         toInviteCode: trimmedCode,
         message: trimmedMsg,
         spaceName: trimmedSpace,
         fromUserName: trimmedName,
       });
+      // 立即更新全局 sentRequest，返回首页即可显示“等待对方接受”
+      setGlobalSentRequest(res.data);
 
       setModalType('success');
       setModalMsg('等待对方接受后你们将自动建立小屋');

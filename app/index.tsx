@@ -14,13 +14,13 @@ import {
 } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 
-import { useSentRequestStatus } from '../hooks/useSentRequestStatus';
+import { useSentRequestStatus } from '../features/requests/hooks/useSentRequestStatus';
 import SentRequestModal from '../components/modals/SentRequestModal';
-import apiClient from '../utils/apiClient';
+import apiClient from '../shared/api/client';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useUserStore } from '../stores/useUserStore';
-import { useRequestStore } from '../stores/useRequestStore';
-import { useAppInitialization } from '../hooks/useAppInitialization';
+import { useUserStore } from '../features/user/store/useUserStore';
+import { useRequestStore } from '../features/requests/store/useRequestStore';
+import { useAppInitialization } from '../features/user/hooks/useAppInitialization';
 import { Colors, ColorSchemes } from '../constants/Colors';
 
 export default function HomeScreen() {
