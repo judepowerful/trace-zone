@@ -8,7 +8,7 @@ export type ThemedTextProps = TextProps & {
 
 export function ThemedText({
   style,
-  color = Colors.text,
+  color = Colors.text.primary,
   type = 'default',
   ...rest
 }: ThemedTextProps) {

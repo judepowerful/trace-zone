@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   Modal,
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { Colors, ColorSchemes } from '../../constants/Colors';
 
@@ -15,6 +16,9 @@ export default function CustomModal({
   type,
   onClose,
   onDismiss,
+  autoCloseMs = 0,
+  dismissOnBackdropPress = true,
+  buttonText = '知道了',
 }: {
   visible: boolean;
   title: string;
@@ -22,7 +26,12 @@ export default function CustomModal({
   type?: 'success' | 'error' | 'info' | null;
   onClose: () => void;
   onDismiss?: () => void;
+  autoCloseMs?: number;
+  dismissOnBackdropPress?: boolean;
+  buttonText?: string;
 }) {
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
+
   useEffect(() => {
     if (!visible && onDismiss) {
       // 等待 Modal 动画关闭后再触发（模拟延迟）
@@ -31,23 +40,39 @@ export default function CustomModal({
     }
   }, [visible]);
 
+  useEffect(() => {
+    if (visible && autoCloseMs > 0) {
+      if (timerRef.current) clearTimeout(timerRef.current)
+      timerRef.current = setTimeout(() => {
+        onClose()
+      }, autoCloseMs)
+      return () => {
+        if (timerRef.current) clearTimeout(timerRef.current)
+      }
+    }
+  }, [visible, autoCloseMs, onClose])
+
   const isError = type === 'error';
   const isSuccess = type === 'success';
 
   return (
     <Modal transparent visible={visible} animationType="fade">
-      <View style={styles.overlay}>
-        <View style={styles.modal}>
-          <Text style={[styles.icon, isError && styles.errorIcon, isSuccess && styles.successIcon]}>
-            {isSuccess ? '🎉' : isError ? '❌' : 'ℹ️'}
-          </Text>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.message}>{message}</Text>
-          <TouchableOpacity style={styles.button} onPress={onClose}>
-            <Text style={styles.buttonText}>知道了</Text>
-          </TouchableOpacity>
+      <TouchableWithoutFeedback onPress={dismissOnBackdropPress ? onClose : undefined}>
+        <View style={styles.overlay}>
+          <TouchableWithoutFeedback>
+            <View style={styles.modal}>
+              <Text style={[styles.icon, isError && styles.errorIcon, isSuccess && styles.successIcon]}>
+                {isSuccess ? '🎉' : isError ? '❌' : 'ℹ️'}
+              </Text>
+              {!!title && <Text style={styles.title}>{title}</Text>}
+              {!!message && <Text style={styles.message}>{message}</Text>}
+              <TouchableOpacity style={styles.button} onPress={onClose}>
+                <Text style={styles.buttonText}>{buttonText}</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableWithoutFeedback>
         </View>
-      </View>
+      </TouchableWithoutFeedback>
     </Modal>
   );
 }

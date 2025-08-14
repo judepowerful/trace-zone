@@ -1,7 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useState, useEffect } from 'react';
 import {
-  Alert,
   StyleSheet,
   Text,
   TextInput,
@@ -37,8 +36,9 @@ export default function InviteSpace() {
 
   useEffect(() => {
       if (sentRequest) {
-        Alert.alert('操作无效', '你已经发出了一个邀请，请等待对方回应或取消当前邀请。');
-        router.replace('/'); // 返回首页
+        setModalType('error');
+        setModalMsg('你已经发出了一个邀请，请等待对方回应或取消当前邀请。');
+        setModalVisible(true);
       }
   }, [sentRequest]);
 

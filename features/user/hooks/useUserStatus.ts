@@ -5,7 +5,7 @@ import { getOrCreateUserId, getMyInviteCode } from '../../user/api'
 import { fetchMySpace } from '../../space/api/spaceApi'
 import { fetchSentRequest } from '../../requests/api/requestApi'
 import type { Space } from '../../../models/space'
-import { useAuthStore } from '../../../stores/useAuthStore'
+import { useAuthStore } from '../../../shared/stores/useAuthStore'
 
 export const useUserStatus = () => {
   const [checking, setChecking] = useState(true)

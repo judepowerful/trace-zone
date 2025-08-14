@@ -5,17 +5,17 @@ import {
   FlatList,
   TouchableOpacity,
   SafeAreaView,
-  Alert,
   RefreshControl,
   View
 } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { fetchRequestById, respondToRequest, getPendingRequestsForUser } from '../features/requests/api/requestApi';
-import { markAllAsRead } from '../features/space/hooks/useUnreadCount';
+import { markAllAsRead } from '../features/requests/hooks/useUnreadCount';
 import IncomingRequestModal from '../features/requests/components/IncomingRequestModal';
 import { useUserStore } from '../features/user/store/useUserStore';
 import { useRequestStore } from '../features/requests/store/useRequestStore';
+import CustomModal from '../components/modals/CustomModal';
 
 export default function MessagesScreen(){
   const requests = useRequestStore(state => state.requests);
@@ -27,6 +27,12 @@ export default function MessagesScreen(){
   const [showModal, setShowModal] = useState(false);
   const router = useRouter();
   const { updateSpaceStatus } = useUserStore();
+
+  // 通知类统一弹窗
+  const [noticeVisible, setNoticeVisible] = useState(false);
+  const [noticeType, setNoticeType] = useState<'success' | 'error' | 'info' | null>(null);
+  const [noticeTitle, setNoticeTitle] = useState('');
+  const [noticeMsg, setNoticeMsg] = useState('');
 
   // 请求变化时，标记已读
   useEffect(() => {
@@ -40,7 +46,10 @@ export default function MessagesScreen(){
       setRequests(latest);
       markAllAsRead(latest);
     } catch (err) {
-      Alert.alert('刷新失败', '请检查网络');
+      setNoticeType('error');
+      setNoticeTitle('刷新失败');
+      setNoticeMsg('请检查网络');
+      setNoticeVisible(true);
     } finally {
       setRefreshing(false);
     }
@@ -51,7 +60,10 @@ export default function MessagesScreen(){
     try {
       const fresh = await fetchRequestById(activeRequest._id);
       if (!fresh || fresh.status !== 'pending') {
-        Alert.alert('邀请已失效', '该邀请可能已被取消或处理');
+        setNoticeType('error');
+        setNoticeTitle('邀请已失效');
+        setNoticeMsg('该邀请可能已被取消或处理');
+        setNoticeVisible(true);
         return;
       }
       await respondToRequest(activeRequest._id, 'accepted', myNameInSpace);
@@ -63,7 +75,10 @@ export default function MessagesScreen(){
       
       router.replace('/space-home');
     } catch (e) {
-      Alert.alert('❌ 接受失败', '请稍后再试');
+      setNoticeType('error');
+      setNoticeTitle('接受失败');
+      setNoticeMsg('请稍后再试');
+      setNoticeVisible(true);
     } finally {
       setIsResponding(false);
       setShowModal(false);
@@ -77,14 +92,20 @@ export default function MessagesScreen(){
     try {
       const fresh = await fetchRequestById(activeRequest._id);
       if (!fresh || fresh.status !== 'pending') {
-        Alert.alert('邀请已失效', '该邀请可能已被取消或处理');
+        setNoticeType('error');
+        setNoticeTitle('邀请已失效');
+        setNoticeMsg('该邀请可能已被取消或处理');
+        setNoticeVisible(true);
         return;
       }
       await respondToRequest(activeRequest._id, 'rejected');
       const newList = requests.filter(r => r._id !== activeRequest._id);
       setRequests(newList);
     } catch (e) {
-      Alert.alert('❌ 拒绝失败', '请稍后再试');
+      setNoticeType('error');
+      setNoticeTitle('拒绝失败');
+      setNoticeMsg('请稍后再试');
+      setNoticeVisible(true);
     } finally {
       setIsResponding(false);
       setShowModal(false);
@@ -149,6 +170,21 @@ export default function MessagesScreen(){
         isResponding={isResponding}
         myNameInSpace={myNameInSpace}
         setMyNameInSpace={setMyNameInSpace}
+      />
+
+      <CustomModal
+        visible={noticeVisible}
+        type={noticeType}
+        title={noticeTitle}
+        message={noticeMsg}
+        onClose={() => setNoticeVisible(false)}
+        onDismiss={() => {
+          setNoticeType(null);
+          setNoticeTitle('');
+          setNoticeMsg('');
+        }}
+        dismissOnBackdropPress
+        autoCloseMs={0}
       />
     </SafeAreaView>
   );

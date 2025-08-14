@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { getSocket } from '../../../shared/lib/socket'
 import { useRequestStore } from '../../requests/store/useRequestStore'
 import { useUserStore } from '../../user/store/useUserStore'
-import { useAuthStore } from '../../../stores/useAuthStore'
+import { useAuthStore } from '../../../shared/stores/useAuthStore'
 import { REQUEST_EVENTS } from '../../../events/requestEvents'
 
 export default function useRequestSocket() {

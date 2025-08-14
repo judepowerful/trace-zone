@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { getSocket } from '../../../shared/lib/socket'
 import { REQUEST_EVENTS } from '../../../events/requestEvents'
+import { useNoticeStore } from '../../../shared/stores/useNoticeStore'
 
 export const useSentRequestStatus = (
   sentRequest: any,
@@ -12,6 +13,7 @@ export const useSentRequestStatus = (
     if (!sentRequest || hasSpace) return
 
     const socket = getSocket()
+    const showNotice = useNoticeStore.getState().show
 
     const onAccepted = ({ id }: { id: string }) => {
       if (id === sentRequest._id) {
@@ -23,7 +25,7 @@ export const useSentRequestStatus = (
     const onRejected = ({ id }: { id: string }) => {
       if (id === sentRequest._id) {
         setSentRequest(null)
-        alert('❌ 邀请已被拒绝，对方没有接受你的邀请')
+        showNotice({ type: 'error', title: '被拒绝', message: '对方没有接受你的邀请' })
       }
     }
 

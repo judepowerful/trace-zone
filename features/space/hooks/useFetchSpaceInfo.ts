@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { fetchMySpace } from '../../space/api/spaceApi'
-import { useAuthStore } from '../../../stores/useAuthStore'
+import { useAuthStore } from '../../../shared/stores/useAuthStore'
 import type { Space } from '../../../models/space'
 
 export default function useFetchSpaceInfo() {

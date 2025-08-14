@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'expo-router'
 import { getSocket } from '../../../shared/lib/socket'
-import { usePresenceStore } from '../../../stores/usePresenceStore'
+import { usePresenceStore } from '../store/usePresenceStore'
 
 export default function useSpaceSocket(spaceId: string) {
   const router = useRouter()
